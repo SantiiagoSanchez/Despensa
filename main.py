@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-
+from routers import productos 
 app = FastAPI()
 
 
+app.include_router(productos.router)
 
 @app.get("/")
 async def Index() -> dict[str, str]:
