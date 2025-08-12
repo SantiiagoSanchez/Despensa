@@ -26,6 +26,7 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold">Precio</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold">Stock</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold">Activo</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,6 +42,9 @@
                             {% else %}
                                 <span class="text-red-600 font-semibold">No</span>
                             {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="/productos/{{ producto._id }}/editar" class="text-blue-600 hover:underline">Editar</a>
                         </td>
                     </tr>
                     {% endfor %}

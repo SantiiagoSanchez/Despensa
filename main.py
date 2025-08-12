@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException
+from bson import ObjectId
 from routers import productos
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -30,6 +31,36 @@ def lista_prod(request: Request):
 @app.get("/productos/nuevo")
 def nuevo_producto(request: Request):
     return templates.TemplateResponse("producto/nuevo.html", {"request": request})
+
+@app.get("/productos/{id}/editar")
+def editar_producto(request: Request, id: str):
+    producto = db.productos.find_one({"_id": ObjectId(id)})
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    producto["_id"] = str(producto["_id"])
+    return templates.TemplateResponse("producto/editar.html", {"request": request, "producto": producto})
+
+@app.post("/productos/{id}")
+def actualizar_producto(
+    request: Request,
+    id: str,
+    nombre: str = Form(...),
+    descripcion: str = Form(None),
+    precio: float = Form(...),
+    stock: int = Form(...),
+    activo: bool = Form(False)
+):
+    actualizacion = {
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "precio": precio,
+        "stock": stock,
+        "activo": activo,
+    }
+    result = db.productos.update_one({"_id": ObjectId(id)}, {"$set": actualizacion})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Producto no encontrado para actualizar")
+    return RedirectResponse(url="/productos/lista", status_code=303)
 
 @app.post("/productos")
 def crear_producto(
