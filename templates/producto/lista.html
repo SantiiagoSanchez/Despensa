@@ -45,7 +45,11 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <a href="/productos/{{ producto._id }}/editar" class="text-blue-600 hover:underline">Editar</a>
+                                <form action="/productos/{{ producto._id }}/eliminar" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
+                                        <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                </form>
                         </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>

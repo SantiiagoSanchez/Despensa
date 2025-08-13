@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi import FastAPI, Request, Form, HTTPException, status
 from bson import ObjectId
 from routers import productos
 from fastapi.staticfiles import StaticFiles
@@ -81,6 +81,12 @@ def crear_producto(
     db.productos.insert_one(nuevo)
     return RedirectResponse(url="/productos/lista", status_code=303)
 
+@app.post("/productos/{id}/eliminar")
+def eliminar_producto(id: str):
+    result = db.productos.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return RedirectResponse(url="/productos/lista", status_code=status.HTTP_303_SEE_OTHER)
 # 3. Incluir router después
 app.include_router(productos.router)
 
