@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from bd.client import db
+from datetime import datetime
 
 
 
@@ -17,7 +18,7 @@ app = FastAPI()
 # 1. Configurar templates
 templates = Jinja2Templates(directory="templates")
 
-# 2. Ruta HTML antes del router
+# 2. CRUD DE PRODUCTOS
 @app.get("/productos/lista")
 def lista_prod(request: Request):
     productos_list = list(db.productos.find())
@@ -87,6 +88,55 @@ def eliminar_producto(id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return RedirectResponse(url="/productos/lista", status_code=status.HTTP_303_SEE_OTHER)
-# 3. Incluir router después
+# 3. AREA DE VENTAS
+
+@app.get("/ventas/nuevo")
+def nueva_venta(request: Request):
+    productos = list(db.productos.find({"activo": True, "stock": {"$gt": 0}}))
+    for p in productos:
+        p["_id"] = str(p["_id"])
+    return templates.TemplateResponse("venta/nuevo.html", {"request": request, "productos": productos})
 app.include_router(productos.router)
+
+@app.post("/ventas")
+def crear_venta(
+    request: Request,
+    producto_id: str = Form(...),
+    cantidad: int = Form(...)
+):
+    producto = db.productos.find_one({"_id": ObjectId(producto_id)})
+
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    if producto["stock"] < cantidad:
+        raise HTTPException(status_code=400, detail="Stock insuficiente")
+
+    precio_unitario = producto["precio"]
+    subtotal = precio_unitario * cantidad
+    total = subtotal
+
+    item = {
+        "producto_id": producto_id,
+        "nombre": producto["nombre"],
+        "precio_unitario": precio_unitario,
+        "cantidad": cantidad,
+        "subtotal": subtotal
+    }
+
+    venta = {
+        "fecha": datetime.now(),
+        "items": [item],
+        "total": total
+    }
+
+    db.ventas.insert_one(venta)
+
+    # Descontar stock
+    db.productos.update_one(
+        {"_id": ObjectId(producto_id)},
+        {"$inc": {"stock": -cantidad}}
+    )
+
+    return RedirectResponse(url="/productos/lista", status_code=303)
 

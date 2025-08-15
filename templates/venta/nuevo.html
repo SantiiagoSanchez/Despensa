@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Venta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="max-w-3xl mx-auto px-4 py-10">
+        <h1 class="text-3xl font-bold mb-6 text-center">🧾 Nueva Venta</h1>
+
+        <form action="/ventas" method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
+            
+            <div class="space-y-4">
+                <label for="producto_id" class="block text-sm font-medium text-gray-700">Producto</label>
+                <select name="producto_id" id="producto_id" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    {% for producto in productos %}
+                        <option value="{{ producto._id }}">
+                            {{ producto.nombre }} - ${{ "%.2f"|format(producto.precio) }} (Stock: {{ producto.stock }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="space-y-4">
+                <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad</label>
+                <input type="number" name="cantidad" id="cantidad" value="1" min="1" required
+                       class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded shadow">
+                    💾 Guardar Venta
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="/productos/lista" class="text-blue-600 hover:underline">← Volver a productos</a>
+        </div>
+    </div>
+
+</body>
+</html>
