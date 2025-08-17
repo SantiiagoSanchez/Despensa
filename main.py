@@ -140,3 +140,14 @@ def crear_venta(
 
     return RedirectResponse(url="/productos/lista", status_code=303)
 
+@app.get("/historial/ventas")
+def lista_ventas(request: Request):
+    ventas = list(db.ventas.find())
+    for venta in ventas:
+        venta["_id"] = str(venta["_id"])
+        venta["id"] = venta["_id"]  
+    return templates.TemplateResponse(
+        "venta/lista.html",
+        {"request": request, "ventas": ventas}
+    )
+
