@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI, Request, Form, HTTPException, status
 from bson import ObjectId
 from routers import productos
@@ -17,6 +18,13 @@ app = FastAPI()
 
 # 1. Configurar templates
 templates = Jinja2Templates(directory="templates")
+
+# Pagina inicio
+@app.get("/")
+def inicio(request: Request):
+    return templates.TemplateResponse(
+        "index.html", {"request": request}
+    )
 
 # 2. CRUD DE PRODUCTOS
 @app.get("/productos/lista")
@@ -140,14 +148,44 @@ def crear_venta(
 
     return RedirectResponse(url="/productos/lista", status_code=303)
 
+from fastapi import Query
+
 @app.get("/historial/ventas")
-def lista_ventas(request: Request):
-    ventas = list(db.ventas.find())
+def lista_ventas(
+    request: Request,
+    mes: Optional[str] = Query(None),
+    anio: Optional[str] = Query(None)
+):
+    filtro = {}
+
+    try:
+        if mes and anio:
+            mes_int = int(mes)
+            anio_int = int(anio)
+
+            fecha_inicio = datetime(anio_int, mes_int, 1)
+            if mes_int == 12:
+                fecha_fin = datetime(anio_int + 1, 1, 1)
+            else:
+                fecha_fin = datetime(anio_int, mes_int + 1, 1)
+
+            filtro["fecha"] = {"$gte": fecha_inicio, "$lt": fecha_fin}
+    except ValueError:
+        pass  # Si mes o año no son válidos, simplemente no se filtra por fecha
+
+    ventas = list(db.ventas.find(filtro))
+
     for venta in ventas:
         venta["_id"] = str(venta["_id"])
         venta["id"] = venta["_id"]  
+
     return templates.TemplateResponse(
         "venta/lista.html",
-        {"request": request, "ventas": ventas}
+        {
+            "request": request,
+            "ventas": ventas,
+            "mes": int(mes) if mes and mes.isdigit() else None,
+            "anio": int(anio) if anio and anio.isdigit() else None
+        }
     )
 

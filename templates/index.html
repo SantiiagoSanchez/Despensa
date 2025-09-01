@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio | Gestión de Tienda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center">
+
+    <div class="max-w-md w-full bg-white shadow-lg rounded-lg p-8 text-center space-y-6">
+        <h1 class="text-3xl font-bold text-gray-800">Bienvenido a <span class="text-blue-600">Gestión de Tienda</span></h1>
+        <p class="text-gray-600">Selecciona una opción para comenzar</p>
+
+        <div class="flex flex-col space-y-4">
+            <a href="/productos/lista"
+               class="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-3 rounded shadow transition duration-200 ease-in-out hover:scale-105">
+                📦 Ver productos
+            </a>
+
+            <a href="/historial/ventas"
+               class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-4 py-3 rounded shadow transition duration-200 ease-in-out hover:scale-105">
+                📈 Historial de ventas
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
